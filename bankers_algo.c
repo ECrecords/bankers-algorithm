@@ -128,6 +128,7 @@ void safe_sequence(int *num_proc, int *num_resrc, int **resource, int **availabl
 
 	while (not_processed > 0)
 	{
+		cached_not_processed = not_processed;
 		for (int i = 0; i < *num_proc; i++)
 		{
 			if (process_status[i] == 0)
@@ -174,7 +175,7 @@ void safe_sequence(int *num_proc, int *num_resrc, int **resource, int **availabl
 
 					process_status[i] = 1;
 					not_processed--;
-					cached_not_processed = not_processed;
+					
 				}
 				else
 				{
