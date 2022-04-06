@@ -104,32 +104,122 @@ void init_param(int *num_proc, int *num_resrc, int **resource, int **available, 
 }
 
 //******************************************************************
-// void "OPTION #2"()
-// {
+void safe_sequence(int *num_proc, int *num_resrc, int **resource, int **available, int **max_claim, int **allocated, int **need)
+{
 
-// 	// declare local variables, including vector to indicate if process is safely sequenced and "num_sequenced" count
-// 	// while not all processes are processed
-// 	// for each process
-// 	// if process has not been processed yet
-// 	// print message comparing need vector with available vector
-// 	// for each resource
-// 	// check for safe processing by comparing process' need vector to available vector
-// 	// if each resource is available
-// 	// print message that process can be processed
-// 	// update number of available units of resource
-// 	// for each resource
-// 	free all resources allocated to process
-// 		// increment number of sequenced processes
-// 		// else print message that process cannot be processed
-// 		// if (no process was processed in the final round of the for-loop)
-// 		//  print message of deadlock among processes not processed
-// 		return;
-// }
+	// declare local variables, including vector to indicate if process is safely sequenced and "num_sequenced" count
+	int not_processed = *num_proc;
+	int cached_not_processed = *num_proc;
+
+	int process_status[*num_proc];
+	int curr_need[*num_resrc];
+
+	int is_available;
+
+	for (int i = 0; i < *num_proc; i++)
+	{
+		process_status[i] = 0;
+	}
+	
+	
+	while (not_processed > 0)
+	{
+		for (int i = 0; i < *num_proc; i++)
+		{
+			if (process_status[i] == 0)
+			{
+				for (int j = 0; j < *num_resrc; j++)
+				{
+					curr_need[j] = *( (*need) + ( (i * *num_resrc) + j) );
+				}
+				
+				printf("Comparing: < ");
+				
+				for (int k = 0; k < *num_resrc; k++)
+				{
+					printf("%d ", curr_need[k]);
+				}
+
+				printf("> <= < ");
+
+				for (int k = 0; k < *num_resrc; k++)
+				{
+					printf("%d ", *( (*available) + k));
+				}
+				
+				printf("> : ");
+				
+				is_available = 1;
+
+				for (int j = 0; j < *num_resrc; j++)
+				{
+					if (curr_need[j] > *( (*available) + j))
+					{
+						is_available = 0;
+					}
+					
+				}
+
+				if (is_available)
+				{
+					printf("Yes --> p%d can be processed\n", i);
+					
+					for (int j = 0; j < *num_resrc; j++)
+					{
+						*((*available) + j) += *((*allocated) + ( (*num_resrc * i) + j) ) ;
+					}
+					
+					process_status[i] = 1;
+					not_processed--;
+					cached_not_processed = not_processed;
+
+				}
+				else
+				{
+					printf("No --> p%d could not be processed\n", i);
+				}
+			}			
+		}
+
+		if (not_processed == cached_not_processed)
+		{
+			printf("Deadlock among processes: ");
+			for (int i = 0; i < *num_proc; i++)
+			{
+				if (process_status[i] == 0)
+				{
+					printf("p%d ", i);
+				}
+				
+			}
+			
+			return;
+		}
+		
+	}
+	
+	// while not all processes are processed
+	// for each process
+	// if process has not been processed yet
+	// print message comparing need vector with available vector
+	// for each resource
+	// check for safe processing by comparing process' need vector to available vector
+	// if each resource is available
+	// print message that process can be processed
+	// update number of available units of resource
+	// for each resource
+	//free all resources allocated to process
+		// increment number of sequenced processes
+		// else print message that process cannot be processed
+		// if (no process was processed in the final round of the for-loop)
+		//  print message of deadlock among processes not processed
+		return;
+}
 
 //******************************************************************
 void free_mem(int **resource, int **available, int **max_claim, int **allocated, int **need)
 {
-	printf("Freeing Memory...\n");
+	printf("\nFreeing Memory...\n");
 
 	if ( (*resource) != NULL)
 	{
@@ -177,12 +267,11 @@ int main()
 			"2) Determine safe sequence\n"
 			"3) Quit program\n");
 
-	
-
 	while (1)
 	{
 		printf("\nEnter Selection: ");
 		scanf("%d", &option);
+		printf("\n");
 
 		if (option == 1)
 		{
@@ -206,7 +295,7 @@ int main()
 		}
 		else if (option == 2)
 		{
-
+			safe_sequence(&num_proc, &num_resrc, &resource, &available, &max_claim, &allocated, &need);
 		}
 		else if (option == 3)
 		{
