@@ -62,6 +62,11 @@ void init_param(int *num_proc, int *num_resrc, int **resource, int **available, 
 	*allocated 	= (int *)malloc((*num_proc) * (*num_resrc) * sizeof(int));
 	*need 		= (int *)malloc((*num_proc) * (*num_resrc) * sizeof(int));
 
+	for (int i = 0; i < *num_resrc; i++)
+	{
+		*( (*available) + i) = *( (*resource) + i);
+	}
+
 	for (int i = 0; i < *num_proc; i++)
 	{
 		printf("\nEnter maximum units process p%d will request from each resource (r0 to r%d): ", i, *num_resrc - 1);
@@ -80,6 +85,22 @@ void init_param(int *num_proc, int *num_resrc, int **resource, int **available, 
 		}
 	}
 
+	for (int j = 0; j < *num_resrc; j++)
+	{
+		for (int i = 0; i < *num_proc; i++)
+		{
+			*( *available + j ) -= *( *allocated + (j + (*num_resrc * i)));
+		}
+	}
+	
+
+	for (int i = 0; i < *num_proc; i++)
+	{
+		for (int j = 0; j < *num_resrc; j++)
+		{
+			*((*need) + ( (i * (*num_resrc)) + j)) = *((*max_claim) + ( (i * (*num_resrc)) + j)) - *((*allocated) + ( (i * (*num_resrc)) + j));
+		}
+	}
 
 	// allocate memory for vectors and arrays: resource, available, max_claim, allocated, need
 	// for each resource, prompt for number of units, set resource and available vectors indices
