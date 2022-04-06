@@ -1,3 +1,9 @@
+/*********************************************************
+Author: Elvis Chino-Islas
+Date Started: 4/6/2022
+Date Completed: 4/6/2022
+*********************************************************/
+
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -13,7 +19,7 @@ void print_vector(int *num_proc, int *num_resrc, int **vector)
 
 	for (int i = 0; i < *num_resrc; i++)
 	{
-		printf("\t%d", *(*vector+i));
+		printf("\t%d", *(*vector + i));
 	}
 
 	printf("\n");
@@ -38,7 +44,7 @@ void print_matrix(int *num_proc, int *num_resrc, int **matrix)
 			printf("\t%d", *((*matrix) + (i * (*num_resrc) + j)));
 		}
 		printf("\n");
-	}	
+	}
 }
 
 //**************************************************************
@@ -48,8 +54,8 @@ void init_param(int *num_proc, int *num_resrc, int **resource, int **available, 
 	scanf("%d", num_proc);
 	printf("\nEnter number of resources: ");
 	scanf("%d", num_resrc);
-	
-	(*resource) = (int *) realloc( *resource, (*num_resrc) * sizeof(int));
+
+	(*resource) = (int *)realloc(*resource, (*num_resrc) * sizeof(int));
 
 	printf("\nEnter number of units for resources (0 to %d): ", *num_resrc - 1);
 	for (int i = 0; i < *num_resrc; i++)
@@ -57,14 +63,14 @@ void init_param(int *num_proc, int *num_resrc, int **resource, int **available, 
 		scanf("%d", (*resource) + i);
 	}
 
-	*available 	= (int *) realloc( *available, (*num_resrc) * sizeof(int));
-	*max_claim 	= (int *) realloc( *max_claim, (*num_proc) * (*num_resrc) * sizeof(int));
-	*allocated 	= (int *) realloc(*allocated, (*num_proc) * (*num_resrc) * sizeof(int));
-	*need 		= (int *) realloc(*need, (*num_proc) * (*num_resrc) * sizeof(int));
+	*available = (int *)realloc(*available, (*num_resrc) * sizeof(int));
+	*max_claim = (int *)realloc(*max_claim, (*num_proc) * (*num_resrc) * sizeof(int));
+	*allocated = (int *)realloc(*allocated, (*num_proc) * (*num_resrc) * sizeof(int));
+	*need = (int *)realloc(*need, (*num_proc) * (*num_resrc) * sizeof(int));
 
 	for (int i = 0; i < *num_resrc; i++)
 	{
-		*( (*available) + i) = *( (*resource) + i);
+		*((*available) + i) = *((*resource) + i);
 	}
 
 	for (int i = 0; i < *num_proc; i++)
@@ -89,16 +95,15 @@ void init_param(int *num_proc, int *num_resrc, int **resource, int **available, 
 	{
 		for (int i = 0; i < *num_proc; i++)
 		{
-			*( *available + j ) -= *( *allocated + (j + (*num_resrc * i)));
+			*(*available + j) -= *(*allocated + (j + (*num_resrc * i)));
 		}
 	}
-	
 
 	for (int i = 0; i < *num_proc; i++)
 	{
 		for (int j = 0; j < *num_resrc; j++)
 		{
-			*((*need) + ( (i * (*num_resrc)) + j)) = *((*max_claim) + ( (i * (*num_resrc)) + j)) - *((*allocated) + ( (i * (*num_resrc)) + j));
+			*((*need) + ((i * (*num_resrc)) + j)) = *((*max_claim) + ((i * (*num_resrc)) + j)) - *((*allocated) + ((i * (*num_resrc)) + j));
 		}
 	}
 }
@@ -120,8 +125,7 @@ void safe_sequence(int *num_proc, int *num_resrc, int **resource, int **availabl
 	{
 		process_status[i] = 0;
 	}
-	
-	
+
 	while (not_processed > 0)
 	{
 		for (int i = 0; i < *num_proc; i++)
@@ -130,11 +134,11 @@ void safe_sequence(int *num_proc, int *num_resrc, int **resource, int **availabl
 			{
 				for (int j = 0; j < *num_resrc; j++)
 				{
-					curr_need[j] = *( (*need) + ( (i * *num_resrc) + j) );
+					curr_need[j] = *((*need) + ((i * *num_resrc) + j));
 				}
-				
+
 				printf("Comparing: < ");
-				
+
 				for (int k = 0; k < *num_resrc; k++)
 				{
 					printf("%d ", curr_need[k]);
@@ -144,41 +148,39 @@ void safe_sequence(int *num_proc, int *num_resrc, int **resource, int **availabl
 
 				for (int k = 0; k < *num_resrc; k++)
 				{
-					printf("%d ", *( (*available) + k));
+					printf("%d ", *((*available) + k));
 				}
-				
+
 				printf("> : ");
-				
+
 				is_available = 1;
 
 				for (int j = 0; j < *num_resrc; j++)
 				{
-					if (curr_need[j] > *( (*available) + j))
+					if (curr_need[j] > *((*available) + j))
 					{
 						is_available = 0;
 					}
-					
 				}
 
 				if (is_available)
 				{
 					printf("Yes --> p%d can be processed\n", i);
-					
+
 					for (int j = 0; j < *num_resrc; j++)
 					{
-						*((*available) + j) += *((*allocated) + ( (*num_resrc * i) + j) ) ;
+						*((*available) + j) += *((*allocated) + ((*num_resrc * i) + j));
 					}
-					
+
 					process_status[i] = 1;
 					not_processed--;
 					cached_not_processed = not_processed;
-
 				}
 				else
 				{
 					printf("No --> p%d could not be processed\n", i);
 				}
-			}			
+			}
 		}
 
 		if (not_processed == cached_not_processed)
@@ -190,30 +192,11 @@ void safe_sequence(int *num_proc, int *num_resrc, int **resource, int **availabl
 				{
 					printf("p%d ", i);
 				}
-				
 			}
-			
+
 			return;
 		}
-		
 	}
-	
-	// while not all processes are processed
-	// for each process
-	// if process has not been processed yet
-	// print message comparing need vector with available vector
-	// for each resource
-	// check for safe processing by comparing process' need vector to available vector
-	// if each resource is available
-	// print message that process can be processed
-	// update number of available units of resource
-	// for each resource
-	//free all resources allocated to process
-		// increment number of sequenced processes
-		// else print message that process cannot be processed
-		// if (no process was processed in the final round of the for-loop)
-		//  print message of deadlock among processes not processed
-		return;
 }
 
 //******************************************************************
@@ -221,31 +204,30 @@ void free_mem(int **resource, int **available, int **max_claim, int **allocated,
 {
 	printf("\nFreeing Memory...\n");
 
-	if ( (*resource) != NULL)
+	if ((*resource) != NULL)
 	{
 		free(*resource);
 	}
 
-	if ( (*available) != NULL)
+	if ((*available) != NULL)
 	{
 		free(*available);
 	}
 
-	if ( (*max_claim) != NULL)
+	if ((*max_claim) != NULL)
 	{
 		free(*max_claim);
 	}
 
-	if ( (*allocated) != NULL)
+	if ((*allocated) != NULL)
 	{
 		free(*allocated);
 	}
 
-	if ( (*need) != NULL)
+	if ((*need) != NULL)
 	{
 		free(*need);
 	}
-	
 }
 
 //*************************************************************
@@ -253,19 +235,19 @@ int main()
 {
 	int num_proc;
 	int num_resrc;
-	int *resource 	= NULL;
-	int *available 	= NULL;
-	int *max_claim 	= NULL;
-	int *allocated 	= NULL;
-	int *need		= NULL;
+	int *resource = NULL;
+	int *available = NULL;
+	int *max_claim = NULL;
+	int *allocated = NULL;
+	int *need = NULL;
 
 	int option;
 
-	printf(	"Banker's Algorithm\n"
-			"------------------\n");
-	printf(	"1) Enter parameters\n"
-			"2) Determine safe sequence\n"
-			"3) Quit program\n");
+	printf("Banker's Algorithm\n"
+		   "------------------\n");
+	printf("1) Enter parameters\n"
+		   "2) Determine safe sequence\n"
+		   "3) Quit program\n");
 
 	while (1)
 	{
@@ -303,7 +285,6 @@ int main()
 			printf("Quiting Program ...\n");
 			return 0;
 		}
-		
 	}
 	return 0;
 }
