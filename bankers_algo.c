@@ -49,7 +49,7 @@ void init_param(int *num_proc, int *num_resrc, int **resource, int **available, 
 	printf("\nEnter number of resources: ");
 	scanf("%d", num_resrc);
 	
-	(*resource) = (int *) malloc((*num_resrc) * sizeof(int));
+	(*resource) = (int *) realloc( *resource, (*num_resrc) * sizeof(int));
 
 	printf("\nEnter number of units for resources (0 to %d): ", *num_resrc - 1);
 	for (int i = 0; i < *num_resrc; i++)
@@ -57,10 +57,10 @@ void init_param(int *num_proc, int *num_resrc, int **resource, int **available, 
 		scanf("%d", (*resource) + i);
 	}
 
-	*available 	= (int *)malloc((*num_resrc) * sizeof(int));
-	*max_claim 	= (int *)malloc((*num_proc) * (*num_resrc) * sizeof(int));
-	*allocated 	= (int *)malloc((*num_proc) * (*num_resrc) * sizeof(int));
-	*need 		= (int *)malloc((*num_proc) * (*num_resrc) * sizeof(int));
+	*available 	= (int *) realloc( *available, (*num_resrc) * sizeof(int));
+	*max_claim 	= (int *) realloc( *max_claim, (*num_proc) * (*num_resrc) * sizeof(int));
+	*allocated 	= (int *) realloc(*allocated, (*num_proc) * (*num_resrc) * sizeof(int));
+	*need 		= (int *) realloc(*need, (*num_proc) * (*num_resrc) * sizeof(int));
 
 	for (int i = 0; i < *num_resrc; i++)
 	{
@@ -101,12 +101,6 @@ void init_param(int *num_proc, int *num_resrc, int **resource, int **available, 
 			*((*need) + ( (i * (*num_resrc)) + j)) = *((*max_claim) + ( (i * (*num_resrc)) + j)) - *((*allocated) + ( (i * (*num_resrc)) + j));
 		}
 	}
-
-	// allocate memory for vectors and arrays: resource, available, max_claim, allocated, need
-	// for each resource, prompt for number of units, set resource and available vectors indices
-	// for each process, for each resource, prompt for max_claim number of units requested by process, update maxclaim and need arrays
-	// for each process, for each resource, prompt for number of resource units allocated to process
-	// print resource vector, available vector, maxclaim array, allocated array, need array
 }
 
 //******************************************************************
@@ -169,11 +163,11 @@ int main()
 {
 	int num_proc;
 	int num_resrc;
-	int *resource;
-	int *available;
-	int *max_claim;
-	int *allocated;
-	int *need;
+	int *resource 	= NULL;
+	int *available 	= NULL;
+	int *max_claim 	= NULL;
+	int *allocated 	= NULL;
+	int *need		= NULL;
 
 	int option;
 
